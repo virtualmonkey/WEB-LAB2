@@ -9,6 +9,9 @@ const verifyRight = ({
 	if (flip === false && checkIndex <= 7){
 		//if the contigous cell to the right is not equal to the current turn value
 		if (board[index[0]][checkIndex] != turn){ 
+			if (board[index[0]][checkIndex] === -1){
+				return false
+			}
 			//call the function with checkIndex + 1 and do not flip anything
 			verifyRight({index, state, flip: false, checkIndex: checkIndex+1,});
 		}
@@ -23,26 +26,27 @@ const verifyRight = ({
 			if(colIndex > index[1] && colIndex < endIndex){
 				board[index[0]][colIndex] = (turn) ? 1 : 0;	
 			}
-		});
+		});	
 	}
+	return true
 }
 const verifyDown = ({
 	index, //index[0] for rows, index[1] for columns
-	state,
-	flip,
-	checkIndex,
-	endIndex
+	state, flip, checkIndex,endIndex
 }) => {
 	const {turn,board} = state;
 	if (flip === false && checkIndex <= 7){
 		//if the contigous cell to the right is not equal to the current turn value
 		if (board[checkIndex][index[1]] != turn){ 
+			if (board[checkIndex][index[1]] === -1){
+				return false
+			}
 			//call the function with checkIndex + 1 and do not flip anything
 			verifyDown({index, state, flip: false, checkIndex: checkIndex+1,});
 		}
 		// if the contigous cell to the right is equal to the current turn value
 		else if (board[checkIndex][index[1]] == turn){
-			//call the function with checkIndex = originalIndex+1 and flip = true
+			//call the function with checkIndex = or iginalIndex+1 and flip = true
 			verifyDown({index, state, flip: true, checkIndex: index[0]+1,endIndex: checkIndex});
 		}
 	}
@@ -56,18 +60,19 @@ const verifyDown = ({
 			})
 		});
 	}
+	return true;
 }
 const verifyLeft = ({
 	index, //index[0] for rows, index[1] for columns
-	state,
-	flip,
-	checkIndex,
-	endIndex
+	state,flip,checkIndex,endIndex
 }) => {
 	const {turn,board} = state;
 	if (flip === false && checkIndex >= 0){
 		//if the contigous cell to the right is not equal to the current turn value
 		if (board[index[0]][checkIndex] != turn){ 
+			if (board[index[0]][checkIndex] === -1){
+				return false
+			}
 			//call the function with checkIndex + 1 and do not flip anything
 			verifyLeft({index, state, flip: false, checkIndex: checkIndex-1,});
 		}
@@ -85,18 +90,19 @@ const verifyLeft = ({
 			}
 		});
 	}
+	return true;
 }
 const verifyUp = ({
 	index, //index[0] for rows, index[1] for columns
-	state,
-	flip,
-	checkIndex,
-	endIndex
+	state, flip, checkIndex,endIndex
 }) => {
 	const {turn,board} = state;
 	if (flip === false && checkIndex >=0){
 		//if the contigous cell to the right is not equal to the current turn value
 		if (board[checkIndex][index[1]] != turn){ 
+			if (board[checkIndex][index[1]] === -1){
+				return false
+			}
 			//call the function with checkIndex + 1 and do not flip anything
 			verifyUp({index, state, flip: false, checkIndex: checkIndex-1,});
 		}
@@ -107,7 +113,6 @@ const verifyUp = ({
 			});
 		}
 	}
-	// remember to update this to work
 	else if (flip === true){
 		board.map((row, rowIndex) => {
 			if (rowIndex > endIndex && rowIndex < index[0])
@@ -118,6 +123,7 @@ const verifyUp = ({
 			})
 		});
 	}
+	return true;
 }
 const verifySecondDiagonalDown = ({
 	index, //index[0] for rows, index[1] for columns
@@ -128,11 +134,12 @@ const verifySecondDiagonalDown = ({
 	changeables,
 }) => {
 	const {turn,board} = state;
-	if (flip === false && ((checkIndex[0] <= 7 && checkIndex[1] <= 7))){
+	if (flip === false && (checkIndex[0] <= 7 && checkIndex[1] <= 7)){
 		//if the contigous cell to the right is not equal to the current turn value
 		if (board[checkIndex[0]][checkIndex[1]] != turn){ 
-			console.log('checkIndex', checkIndex);
-			console.log('endIndex', endIndex);
+			if (board[checkIndex[0]][checkIndex[1]] === -1){
+				return false;
+			}
 			changeables.push([checkIndex[0],checkIndex[1]]);
 			verifySecondDiagonalDown({index, state, flip: false, checkIndex: checkIndex.map(x => x+1),changeables: changeables});
 		}
@@ -143,47 +150,6 @@ const verifySecondDiagonalDown = ({
 		}
 	}
 	else if (flip === true){
-		console.log('entered TRUE DIAGONAL DOWN');
-		console.log('checkIndex', checkIndex);
-		console.log('endIndex', endIndex);
-		console.log(changeables);
-		board.map((row, rowIndex) => {
-			row.map((cellValue, colIndex) => {
-				changeables.map( x => {
-					if (x[0] == rowIndex && x[1] == colIndex){
-						row[colIndex] = (turn) ? 1 : 0;
-					}
-				})
-			
-			});
-		});
-	}
-}
-const verifySecondDiagonalUp = ({
-	index, //index[0] for rows, index[1] for columns
-	state,
-	flip,
-	checkIndex, // checkIndex[0] for row checkIndex[1] for column
-	endIndex,  // endIndex[0] for row endIndex[1] for column,
-	changeables,
-}) => {
-	const {turn,board} = state;
-	if (flip === false && ((checkIndex[0] >= 0 && checkIndex[1] >= 0))){
-		//if the contigous cell to the right is not equal to the current turn value
-		if (board[checkIndex[0]][checkIndex[1]] != turn){ 
-			changeables.push([checkIndex[0],checkIndex[1]]);
-			verifySecondDiagonalUp({index, state, flip: false, checkIndex: checkIndex.map(x => x-1),changeables: changeables});
-		}
-		// if the contigous cell to the right is equal to the current turn value
-		else if (board[checkIndex[0]][checkIndex[1]] == turn){		
-			//call the function with checkIndex = originalIndex+1 and flip = true
-			verifySecondDiagonalUp({index,state, flip: true, checkIndex: index.map(x=>x-1), endIndex: [checkIndex[0], checkIndex[1]],changeables: changeables});
-		}
-	}
-	else if (flip === true){
-		console.log('entered TRUE DIAGONAL UP');
-		console.log('checkIndex', checkIndex);
-		console.log('endIndex', endIndex);
 		console.log(changeables);
 		board.map((row, rowIndex) => {
 			row.map((cellValue, colIndex) => {
@@ -197,8 +163,138 @@ const verifySecondDiagonalUp = ({
 		});
 		changeables = [];
 	}
+	return true;
 }
+const verifySecondDiagonalUp = ({
+	index, //index[0] for rows, index[1] for columns
+	state,
+	flip,
+	checkIndex, // checkIndex[0] for row checkIndex[1] for column
+	endIndex,  // endIndex[0] for row endIndex[1] for column,
+	changeables,
+}) => {
+	const {turn,board} = state;
+	if (flip === false && ((checkIndex[0] >= 0 && checkIndex[1] >= 0))){
+		//if the contigous cell to the right is not equal to the current turn value
+		if (board[checkIndex[0]][checkIndex[1]] != turn){ 
+			if (board[checkIndex[0]][checkIndex[1]] === -1){
+				return false;
+			}
+			changeables.push([checkIndex[0],checkIndex[1]]);
+			verifySecondDiagonalUp({index, state, flip: false, checkIndex: checkIndex.map(x => x-1),changeables: changeables});
+		}
+		// if the contigous cell to the right is equal to the current turn value
+		else if (board[checkIndex[0]][checkIndex[1]] == turn){		
+			//call the function with checkIndex = originalIndex+1 and flip = true
+			verifySecondDiagonalUp({index,state, flip: true, checkIndex: index.map(x=>x-1), endIndex: [checkIndex[0], checkIndex[1]],changeables: changeables});
+		}
+	}
+	else if (flip === true){
+		board.map((row, rowIndex) => {
+			row.map((cellValue, colIndex) => {
+				changeables.map( x => {
+					if (x[0] == rowIndex && x[1] == colIndex){
+						row[colIndex] = (turn) ? 1 : 0;
+					}
+				})
+			
+			});
+		});
+		changeables = [];
+	}
+	return true;
+}
+const verifyFirstDiagonalUp = ({
+	index, //index[0] for rows, index[1] for columns
+	state,
+	flip,
+	checkIndex, // checkIndex[0] for row checkIndex[1] for column
+	endIndex,  // endIndex[0] for row endIndex[1] for column,
+	changeables,
+}) => {
+	const {turn,board} = state;
+	if (flip === false && ((checkIndex[0] >= 0 && checkIndex[1] <= 7))){
+		//if the contigous cell to the right is not equal to the current turn value
+		if (board[checkIndex[0]][checkIndex[1]] != turn){ 
+			if(board[checkIndex[0]][checkIndex[1]] === -1){
+				return false
+			}
+			changeables.push([checkIndex[0],checkIndex[1]]);
+			verifyFirstDiagonalUp({index, state, flip: false,
+				checkIndex: [checkIndex[0]-1,checkIndex[1]+1],
+				changeables: changeables});
+		}
+		// if the contigous cell to the right is equal to the current turn value
+		else if (board[checkIndex[0]][checkIndex[1]] == turn){		
+			//call the function with checkIndex = originalIndex+1 and flip = true
+			verifyFirstDiagonalUp({index,state, flip: true, 
+				checkIndex: [index[0]-1, index[1]+1], 
+				endIndex: [checkIndex[0], checkIndex[1]],
+				changeables: changeables});
+		}
+	}
+	else if (flip === true){
+		board.map((row, rowIndex) => {
+			row.map((cellValue, colIndex) => {
+				changeables.map( x => {
+					if (x[0] == rowIndex && x[1] == colIndex){
+						row[colIndex] = (turn) ? 1 : 0;
+					}
+				})
+			
+			});
+		});
+		changeables = [];
+	}
+	return true;	
+}
+const verifyFirstDiagonalDown = ({
+	index, //index[0] for rows, index[1] for columns
+	state,
+	flip,
+	checkIndex, // checkIndex[0] for row checkIndex[1] for column
+	endIndex,  // endIndex[0] for row endIndex[1] for column,
+	changeables,
+}) => {
+	const {turn,board} = state;
+	if (flip === false && ((checkIndex[0] <= 7 && checkIndex[1] >= 0))){
+		//if the contigous cell to the right is not equal to the current turn value
+		if (board[checkIndex[0]][checkIndex[1]] != turn){ 
+			if (board[checkIndex[0]][checkIndex[1]] === -1){
+				return false;
+			}
+			changeables.push([checkIndex[0],checkIndex[1]]);
 
+			verifyFirstDiagonalDown({index, state, flip: false,
+				checkIndex: [checkIndex[0]+1,checkIndex[1]-1],
+				changeables: changeables});
+		}
+		// if the contigous cell to the right is equal to the current turn value
+		else if (board[checkIndex[0]][checkIndex[1]] == turn){		
+			//call the function with checkIndex = originalIndex+1 and flip = true
+			verifyFirstDiagonalDown({index,state, flip: true, 
+				checkIndex: [index[0]+1, index[1]-1], 
+				endIndex: [checkIndex[0], checkIndex[1]],
+				changeables: changeables});
+		}
+	}
+	else if (flip === true){
+		console.log(changeables);
+		board.map((row, rowIndex) => {
+			row.map((cellValue, colIndex) => {
+				changeables.map( x => {
+					if (x[0] == rowIndex && x[1] == colIndex){
+						row[colIndex] = (turn) ? 1 : 0;
+					}
+				})
+			
+			});
+		});
+		changeables = [];
+	}
+	return true;
+	
+}
 
 const renderCell = ({
 	value,
@@ -232,61 +328,64 @@ const renderCell = ({
 	}
 
 	disc.onclick = () => {
-		const { board } = state;
-		changeablesSecondDiagDown  = [];
-		changeablesSecondDiagUp = [];
-		changeablesFirstDiagUp = [];
-		changebleFirstDiagDown = [];
-		// verify if it is allowed to put disc in clicked cell
-		// update state, filling with a 0 for white or 1 for black in the board
-		board[index[0]][index[1]] = (state.turn) ? 1 : 0;
-		console.log(verifyRight({
-			index: index,
-			state: state,
-			flip: false,
-			checkIndex: index[1] + 1,
-			endIndex: 0
-		}));
-		console.log(verifyDown({
-			index: index,
-			state: state,
-			flip: false,
-			checkIndex: index[0] + 1,
-			endIndex: 0
-		}));
-		console.log(verifyLeft({
-			index: index,
-			state: state,
-			flip: false,
-			checkIndex: index[1] - 1,
-			endIndex: 0
-		}));
-		console.log(verifyUp({
-			index: index,
-			state: state,
-			flip: false,
-			checkIndex: index[0] - 1,
-			endIndex: 0
-		}));
-		console.log(verifySecondDiagonalDown({
-			index: index,
-			state: state,
-			flip: false,
-			checkIndex: index.map(x=>x+1),
-			changeables: changeablesSecondDiagDown
-		}))
-		console.log(verifySecondDiagonalUp({
-			index: index,
-			state: state,
-			flip: false,
-			checkIndex: index.map(x=>x-1),
-			changeables: changeablesSecondDiagUp
-		}))
+		if ( value === -1){			
+			const { board } = state;
+			const boardCopy = board;
+			changeablesSecondDiagDown  = [];
+			changeablesSecondDiagUp = [];
+			changeablesFirstDiagUp = [];
+			changeablesFirstDiagDown = [];
+			// verify if it is allowed to put disc in clicked cell
+			// update state, filling with a 0 for white or 1 for black in the board
+			let a = verifyRight({index: index, state: state, flip: false,checkIndex: index[1] + 1,endIndex: 0});
+			const b = verifyLeft({index: index,state: state,flip: false,checkIndex: index[1] - 1,endIndex: 0});
+			const c = verifyDown({index: index,state: state,flip: false,checkIndex: index[0] + 1,endIndex: 0});
+			const d = verifyUp({index: index,state: state,flip: false,checkIndex: index[0] - 1,endIndex: 0});
+			const e = verifySecondDiagonalDown({index: index,state: state,flip: false,checkIndex: index.map(x=>x+1),changeables: changeablesSecondDiagDown});
+			const f = verifySecondDiagonalUp({index: index,state: state,flip: false,checkIndex: index.map(x=>x-1),changeables: changeablesSecondDiagUp});
+			const g = verifyFirstDiagonalUp({index: index,state: state,flip: false,checkIndex: [index[0]-1, index[1]+1],changeables: changeablesFirstDiagUp});
+			const h = verifyFirstDiagonalDown({index: index,state: state,flip: false,checkIndex: [index[0]+1, index[1]-1],changeables: changeablesFirstDiagDown});
+			if (a || b || c || d || e || f || g || h){
+				board[index[0]][index[1]] = (state.turn) ? 1 : 0;	
+				state.turn = !state.turn;
+			} else {
+				alert('No se puede colocar una ficha en esta casilla!')
+				state.board = boardCopy;
+			}
+			let whiteCount = 0;
+			let blackCount = 0;
+			state.board.map((row) => {
+				row.map((column) => {
+					if(column===0){
+						whiteCount += 1;
+					}
+					else if(column===1){
+						blackCount += 1;
+					}
+				})
+			})
 
+			if (blackCount + whiteCount === 64){
+				const winner = (state.turn) ? 'black' : 'white';
+				state.board = [[-1,-1,-1,-1,-1,-1,-1,-1], // '0 for white, -1 for blank, 1 for black
+								[-1,-1,-1,-1,-1,-1,-1,-1],
+								[-1,-1,-1,-1,-1,-1,-1,-1],
+								[-1,-1,-1,0,1,-1,-1,-1],
+								[-1,-1,-1,1,0,-1,-1,-1],
+								[-1,-1,-1,-1,-1,-1,-1,-1],
+								[-1,-1,-1,-1,-1,-1,-1,-1],
+								[-1,-1,-1,-1,-1,-1,-1,-1]];
+				state.turn = true;
+				root.innerHTML = '';
+				render(root, state);//Restart the game
+				alert('The winner is color: '+ winner);
 				
-		state.turn = !state.turn;		
-		root.innerHTML = '';
-		render(root, state);//Restart the game
+			}
+			root.innerHTML = '';
+			render(root, state);//Restart the game
+		}
+		
+		
 	};
 
 	cell.appendChild(disc)
@@ -470,15 +569,15 @@ const render = (mount, state) => {
 
 const APP_STATE = {
     turn: true, // false for white, true for black
-    board: [[-1,-1,-1,-1,-1,-1,-1,-1], // '0 for white, -1 for blank, 1 for black
-			[-1,-1,-1,-1,-1,-1,-1,-1],
-			[-1,-1,-1,-1,-1,-1,-1,-1],
-			[-1,-1,-1,0,1,-1,-1,-1],
-			[-1,-1,-1,1,0,-1,-1,-1],
-			[-1,-1,-1,-1,-1,-1,-1,-1],
-			[-1,-1,-1,-1,-1,-1,-1,-1],
-			[-1,-1,-1,-1,-1,-1,-1,-1]
-		]
+	board: [[-1,-1,-1,-1,-1,-1,-1,-1], // '0 for white, -1 for blank, 1 for black
+		[-1,-1,-1,-1,-1,-1,-1,-1],
+		[-1,-1,-1,-1,-1,-1,-1,-1],
+		[-1,-1,-1,0,1,-1,-1,-1],
+		[-1,-1,-1,1,0,-1,-1,-1],
+		[-1,-1,-1,-1,-1,-1,-1,-1],
+		[-1,-1,-1,-1,-1,-1,-1,-1],
+		[-1,-1,-1,-1,-1,-1,-1,-1]
+	]
 };
 
 const root = document.getElementById('root');
